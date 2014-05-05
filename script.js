@@ -1,5 +1,63 @@
-﻿window.addEventListener("load", function () {
-	var input = document.getElementById("input");
+﻿var input;
+window.addEventListener("load", function () {
+	input = document.getElementById("input");
+
+	input.url = (function () {
+		var url = document.getElementById("input-url");
+
+		var path = url.path = document.getElementById("input-url-path");
+		var domain = url.domain = document.getElementById("input-url-domain");
+		var origin = domain.innerText = window.location.origin + "/";
+
+		var abs = url.absolute=(function(){
+			var findHttp = /^https?:\/\//;
+			var turnOn = "Check to use Absolute Url (CORS enabled)",
+				turnOff = "Uncheck to use Relative Url (within domain)";
+
+			var abs = url.absolute = document.getElementById("input-url-absolute");
+			abs.title = turnOn;
+			abs.onchange = function () {
+				if (this.checked) {
+					domain.style.display = "none";
+					if (!findHttp.test(path.value)) { path.value = "http://" + path.value; }
+					abs.title = turnOff;
+				}
+				else {
+					domain.style.display = "inline";
+					path.value = path.value.replace(findHttp, "");
+					abs.title = turnOn;
+				}
+			};
+
+			return abs;
+		})();
+
+		var src, pathEnd;
+		url.onsubmit = function (e) {
+			e.preventDefault();
+
+			src = (abs.checked ? "" : origin) + path.value;
+			if (src.indexOf(origin) === 0) {
+				pathEnd = src.indexOf("#", origin.length);
+				if (pathEnd === -1) { pathEnd = src.indexOf("?", origin.length); }
+				if (pathEnd === -1) { pathEnd = src.length; }
+
+				switch (src.substring(origin.length, pathEnd)) {
+					case "":
+					case "index.html":
+					case "input-placeholder.html":
+						alert("The url '" + src + "' is not a valid url.");
+						return false;
+				}
+			}
+
+			input.src = src;
+			return false;
+		};
+
+		return url;
+	})();
+
 	var content = [], breakObject = { is: "break" };
 	input.onload = (function () {
 		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+)+$/;
@@ -88,20 +146,20 @@
 					content.last && (lastText = content.last.last) &&
 					((lastText.B === B) && (lastText.U === U) && (lastText.I === I))
 				) {
-					console.log(
-						"Append to previous text; " +
-						(B ? "B" : "") + (U ? "U" : "") + (I ? "I" : "") +
-						" " + JSON.stringify(text)
-					);
+					//console.log(
+					//	"Append to previous text; " +
+					//	(B ? "B" : "") + (U ? "U" : "") + (I ? "I" : "") +
+					//	" " + JSON.stringify(text)
+					//);
 					lastText.text += text;
 					lastText = null;
 				}
 				else {
-					console.log(
-						"Add new text; " +
-						(B ? "B" : "") + (U ? "U" : "") + (I ? "I" : "") +
-						" " + JSON.stringify(text)
-					);
+					//console.log(
+					//	"Add new text; " +
+					//	(B ? "B" : "") + (U ? "U" : "") + (I ? "I" : "") +
+					//	" " + JSON.stringify(text)
+					//);
 					content.last.push(content.last.last = {
 						text: text,
 						B: B, U: U, I: I
@@ -110,9 +168,16 @@
 			};
 		})();
 
+		var inputSelector = "#content";
 		return function () {
+			try { input.contentDocument; }
+			catch (error) {
+				alert("Could not access '" + input.src + "'; make sure it is in the same domain, or has CORS enabled.");
+				return;
+			}
+
 			content.length = 0;
-			parse(input.contentDocument.body);
+			parse(inputSelector ? input.contentDocument.querySelector(inputSelector):input.contentDocument.body);
 			delete content.last;
 			pendingBreak.is = pendingPara.is = false;
 			
@@ -155,7 +220,7 @@
 
 	var doScroll = true, amount;
 	function scroll(e) {
-		if (!doScroll) { console.log("ignore"); return; }
+		if (!doScroll) { return; }
 		doScroll = false;
 
 		var target = e.target || e.srcElement, window;
@@ -174,7 +239,6 @@
 
 		for (var i = 0; i < 3; i++) {
 			if (toScroll[i] !== target) {
-				console.log(target, toScroll[i]);
 				if (toScroll[i].scrollTo) {
 					toScroll[i].scrollTo(
 						toScroll[i].scrollX,
@@ -188,5 +252,4 @@
 		}
 		setTimeout(function () { doScroll = true; }, 1);
 	}
-
 });

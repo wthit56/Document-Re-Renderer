@@ -1,2 +1,7 @@
 ﻿body {}
 textarea {width:300px; height:150px; resize:none;}
+
+fieldset {}
+fieldset div {display:inline-block;}
+
+#input-url-absolute-label {display:none;}

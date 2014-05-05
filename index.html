@@ -2,6 +2,14 @@
 <link href="styles.css" rel="stylesheet" type="text/css" />
 <script src="events-simple-shim.js"></script>
 <script src="script.js" type="text/javascript"></script>
-<iframe src="input-placeholder.html" id="input"></iframe>
+<fieldset>
+	<legend>Input</legend>
+	<form id="input-url">
+		<div><label for="input-url-absolute" id="input-url-absolute-label">Use Absolute Url (CORS enabled)</label><input id="input-url-absolute" type="checkbox" /></div>
+		<div><span id="input-url-domain"></span><input id="input-url-path" type="text" /></div>
+		<input value="Go" type="submit" />
+	</form>
+	<iframe src="input-placeholder.html" id="input"></iframe>
+</fieldset>
 <iframe id="output-preview"></iframe>
 <textarea id="output"></textarea>
