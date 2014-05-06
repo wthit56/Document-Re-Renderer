@@ -1,65 +1,58 @@
 ﻿var input;
 window.addEventListener("load", function () {
 	input = document.getElementById("input");
+	input.contentWindow.onscroll = scroll;
 
-	input.url = (function () {
-		var url = document.getElementById("input-url");
+	var outputPreview = document.getElementById("output-preview");
+	outputPreview.contentWindow.onscroll = scroll;
+	outputPreview.contentDocument.body.style.margin = "10px";
 
-		var path = url.path = document.getElementById("input-url-path");
-		var domain = url.domain = document.getElementById("input-url-domain");
-		var origin = domain.innerText = window.location.origin + "/";
+	var output = document.getElementById("output");
+	output.onscroll = scroll;
 
-		var abs = url.absolute=(function(){
-			var findHttp = /^https?:\/\//;
-			var turnOn = "Check to use Absolute Url (CORS enabled)",
-				turnOff = "Uncheck to use Relative Url (within domain)";
+	var toScroll = [
+		input.contentWindow,
+		outputPreview.contentWindow,
+		output
+	];
+	var doScroll = true, amount;
+	function scroll(e) {
+		if (!doScroll) { return; }
+		doScroll = false;
 
-			var abs = url.absolute = document.getElementById("input-url-absolute");
-			abs.title = turnOn;
-			abs.onchange = function () {
-				if (this.checked) {
-					domain.style.display = "none";
-					if (!findHttp.test(path.value)) { path.value = "http://" + path.value; }
-					abs.title = turnOff;
+		var target = e.target || e.srcElement, window;
+		if (target.nodeType === 1) {
+			amount = target.scrollTop / (target.scrollHeight - target.offsetHeight);
+		}
+		else {
+			window = target.defaultView || target.parentWindow;
+			amount = window.scrollY / (target.body.scrollHeight - window.innerHeight);
+			target = window;
+		}
+
+		if (isNaN(amount)) {
+			console.error("invalid amount");
+			return;
+		}
+
+		for (var i = 0; i < 3; i++) {
+			if (toScroll[i] !== target) {
+				if (toScroll[i].scrollTo) {
+					toScroll[i].scrollTo(
+						toScroll[i].scrollX,
+						(toScroll[i].document.body.scrollHeight - toScroll[i].innerHeight) * amount
+					);
 				}
 				else {
-					domain.style.display = "inline";
-					path.value = path.value.replace(findHttp, "");
-					abs.title = turnOn;
-				}
-			};
-
-			return abs;
-		})();
-
-		var src, pathEnd;
-		url.onsubmit = function (e) {
-			e.preventDefault();
-
-			src = (abs.checked ? "" : origin) + path.value;
-			if (src.indexOf(origin) === 0) {
-				pathEnd = src.indexOf("#", origin.length);
-				if (pathEnd === -1) { pathEnd = src.indexOf("?", origin.length); }
-				if (pathEnd === -1) { pathEnd = src.length; }
-
-				switch (src.substring(origin.length, pathEnd)) {
-					case "":
-					case "index.html":
-					case "input-placeholder.html":
-						alert("The url '" + src + "' is not a valid url.");
-						return false;
+					toScroll[i].scrollTop = (toScroll[i].scrollHeight - toScroll[i].clientHeight) * amount
 				}
 			}
-
-			input.src = src;
-			return false;
-		};
-
-		return url;
-	})();
+		}
+		setTimeout(function () { doScroll = true; }, 1);
+	}
 
 	var content = [], breakObject = { is: "break" };
-	input.onload = (function () {
+	document.getElementById("input-analyse").onclick = (function () {
 		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+)+$/;
 		var text, html;
 		function parse(element) {
@@ -168,19 +161,12 @@ window.addEventListener("load", function () {
 			};
 		})();
 
-		var inputSelector = "#content";
 		return function () {
-			try { input.contentDocument; }
-			catch (error) {
-				alert("Could not access '" + input.src + "'; make sure it is in the same domain, or has CORS enabled.");
-				return;
-			}
-
 			content.length = 0;
-			parse(inputSelector ? input.contentDocument.querySelector(inputSelector):input.contentDocument.body);
+			parse(input.contentDocument.body);
 			delete content.last;
 			pendingBreak.is = pendingPara.is = false;
-			
+
 			outputPreview.contentDocument.body.innerHTML = content.map(function (part) {
 				switch (part) {
 					case breakObject:
@@ -199,57 +185,46 @@ window.addEventListener("load", function () {
 						}).join("") + "</p>";
 				}
 			}).join("\n");
-			
-			output.value = input.contentDocument.body.innerText;
 
-			input.contentWindow.onscroll = scroll;
+			output.value = input.contentDocument.body.innerText;
 		};
 	})();
-	input.src = "test.html";
 
-	var outputPreview = document.getElementById("output-preview");
-	outputPreview.contentWindow.onscroll = scroll;
+	document.getElementById("input-clear").onclick = function () {
+		input.contentDocument.body.innerHTML = "";
+		outputPreview.contentDocument.body.innerHTML = "";
+		output.value = "";
+	};
 
-	var output = document.getElementById("output");
-	output.onscroll = scroll;
-	var toScroll = [
-		input.contentWindow,
-		outputPreview.contentWindow,
-		output
-	];
+	window.addEventListener("resize", (function () {
+		var fieldsets = document.getElementsByTagName("FIELDSET");
 
-	var doScroll = true, amount;
-	function scroll(e) {
-		if (!doScroll) { return; }
-		doScroll = false;
+		fieldsets[0].controls = document.getElementById("input-controls");
+		fieldsets[0].display = document.getElementById("input");
+		var gap = fieldsets[0].controls.offsetTop - (fieldsets[0].display.offsetTop + fieldsets[0].display.offsetHeight);
 
-		var target = e.target || e.srcElement, window;
-		if (target.nodeType === 1) {
-			amount = target.scrollTop / (target.scrollHeight - target.offsetHeight);
+		fieldsets[1].display = document.getElementById("output-preview");
+
+		fieldsets[2].display = document.getElementById("output");
+		fieldsets[2].controls = document.getElementById("output-controls");
+
+		var width, height;
+		function resize() {
+			document.body.style.overflow = "hidden";
+			width = ((window.innerWidth / 3) - 21);
+			fieldsets[0].style.width = fieldsets[1].style.width = fieldsets[2].style.width = width + "px";
+			height = (window.innerHeight - fieldsets[0].offsetTop - 20);
+			fieldsets[0].style.height = fieldsets[1].style.height = fieldsets[2].style.height = height + "px";
+
+			fieldsets[0].display.style.height = (height - fieldsets[0].controls.offsetHeight - gap - 20) + "px";
+			fieldsets[1].display.style.height = (height - fieldsets[1].display.offsetTop + 10) + "px";
+			fieldsets[2].display.style.height = (height - fieldsets[2].controls.offsetHeight - gap - 20) + "px";
+
+			document.body.style.overflow = "auto";
 		}
-		else {
-			window = target.defaultView || target.parentWindow;
-			amount = window.scrollY / (target.body.scrollHeight - window.innerHeight);
-			target = window;
-		}
+		resize();
 
-		if (isNaN(amount)) {
-			debugger;
-		}
+		return resize;
+	})());
 
-		for (var i = 0; i < 3; i++) {
-			if (toScroll[i] !== target) {
-				if (toScroll[i].scrollTo) {
-					toScroll[i].scrollTo(
-						toScroll[i].scrollX,
-						(toScroll[i].document.body.scrollHeight - toScroll[i].innerHeight) * amount
-					);
-				}
-				else {
-					toScroll[i].scrollTop = (toScroll[i].scrollHeight - toScroll[i].clientHeight) * amount
-				}
-			}
-		}
-		setTimeout(function () { doScroll = true; }, 1);
-	}
 });
