@@ -53,7 +53,8 @@ window.addEventListener("load", function () {
 
 	var content = [], breakObject = { is: "break" };
 	document.getElementById("input-analyse").onclick = (function () {
-		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+)+$/;
+		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+)+$/,
+			isBreak = /^\s*(?:[*#~=-]+\s*)+$/;
 		var text, html;
 		function parse(element) {
 			html = element.innerHTML;
@@ -68,14 +69,23 @@ window.addEventListener("load", function () {
 				var childNodes = element.childNodes, child;
 				for (var i = 0, l = childNodes.length; i < l; i++) {
 					child = childNodes[i];
+					console.log(child.innerText);
 					if (child.nodeType === 3) {
 						text = child.textContent;
 						if (!isWhitespace.test(text) && !isSpace.test(text)) {
-							addText(text, style);
+							if (isBreak.test(text)) {
+								pendingBreak();
+							}
+							else {
+								addText(text, style);
+							}
 						}
 					}
 					else if (child.tagName === "BR") {
 						pendingPara();
+					}
+					else if (child.tagName === "HR") {
+						pendingBreak();
 					}
 					else {
 						parse(child);
@@ -186,7 +196,7 @@ window.addEventListener("load", function () {
 				}
 			}).join("\n");
 
-			output.value = input.contentDocument.body.innerText;
+			output.value = outputPreview.contentDocument.body.innerText;
 		};
 	})();
 
