@@ -196,7 +196,24 @@ window.addEventListener("load", function () {
 				}
 			}).join("\n");
 
-			output.value = outputPreview.contentDocument.body.innerText;
+			output.value = content.map(function (part) {
+				switch (part) {
+					case breakObject:
+						return "\n==========\n";
+					default:
+						return "\n" + part.map(function (text) {
+							return (
+								(text.B ? "**" : "") +
+								(text.U ? "<u>" : "") +
+								(text.I ? "_" : "") +
+								text.text +
+								(text.I ? "_" : "") +
+								(text.U ? "</u>" : "") +
+								(text.B ? "**" : "")
+							);
+						}).join("") + "\n";
+				}
+			}).join("");
 		};
 	})();
 
