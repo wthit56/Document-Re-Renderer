@@ -11,7 +11,26 @@ fieldset:first-of-type {border-left:none;}
 		width:100%; height:150px; box-sizing:border-box;
 		border:1px solid black; resize:none;
 	}
-	fieldset form {text-align:right;}
+	fieldset form {position:relative;}
+		fieldset form span {display:inline-block;}
+		
+	fieldset form #input-controls {text-align:right;}
+
+	#output-controls {}
+		#output-controls {/*line-height:1.2em;*/}
+			#output-controls label {display:none;}
+			#output-controls input {outline:none; height:1.2em;}
+			
+			#output-controls input#break {margin:-2.2em auto 0 auto; display:block;}
+			#output-controls hr {margin:1em 0;}
+
+			#output-controls input {border:1px solid black; min-width:20px; margin:0;}
+			#output-controls input, fieldset #option-proxy {
+				font-family:monospace; font-size:100%;
+			}
+		#output-controls #option-proxy {white-space:pre-wrap; position:absolute;}
+		
+
 
 #input-controls {text-align:right;}
 	#input-controls input[type=button] {margin:0;}

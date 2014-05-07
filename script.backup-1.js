@@ -53,7 +53,7 @@ window.addEventListener("load", function () {
 
 	var content = [], breakObject = { is: "break" };
 	document.getElementById("input-analyse").onclick = (function () {
-		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+(?:<br(?: \/)?>)+)+$/,
+		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+)+$/,
 			isBreak = /^\s*(?:[*#~=-]+\s*)+$/;
 		var text, html;
 		function parse(element) {
@@ -171,23 +171,6 @@ window.addEventListener("load", function () {
 			};
 		})();
 
-		var paraBefore = document.getElementById("para-before"),
-			paraAfter = document.getElementById("para-after"),
-			boldBefore = document.getElementById("bold-before"),
-			boldAfter = document.getElementById("bold-after"),
-			underlinedBefore = document.getElementById("underlined-before"),
-			underlinedAfter = document.getElementById("underlined-after"),
-			italicBefore = document.getElementById("italic-before"),
-			italicAfter = document.getElementById("italic-after"),
-			breakOption = document.getElementById("break");
-
-		var findQuotes = /"/g;
-		function toString(string) {
-			console.log("\"" + string.replace(findQuotes, "\\\"") + "\"");
-			return JSON.parse("\"" + string.replace(findQuotes, "\\\"") + "\"");
-		}
-		console.log(toString("\\n<p>"));
-
 		return function () {
 			content.length = 0;
 			parse(input.contentDocument.body);
@@ -216,19 +199,19 @@ window.addEventListener("load", function () {
 			output.value = content.map(function (part) {
 				switch (part) {
 					case breakObject:
-						return toString(breakOption.value);
+						return "\n==========\n";
 					default:
-						return toString(paraBefore.value) + part.map(function (text) {
+						return "\n" + part.map(function (text) {
 							return (
-								(text.B ? toString(boldBefore.value) : "") +
-								(text.U ? toString(underlinedBefore.value) : "") +
-								(text.I ? toString(italicBefore.value) : "") +
+								(text.B ? "**" : "") +
+								(text.U ? "<u>" : "") +
+								(text.I ? "_" : "") +
 								text.text +
-								(text.I ? toString(italicAfter.value) : "") +
-								(text.U ? toString(underlinedAfter.value) : "") +
-								(text.B ? toString(boldAfter.value) : "")
+								(text.I ? "_" : "") +
+								(text.U ? "</u>" : "") +
+								(text.B ? "**" : "")
 							);
-						}).join("") + toString(paraAfter.value);
+						}).join("") + "\n";
 				}
 			}).join("");
 		};

@@ -19,6 +19,33 @@
 	<div class="name">Output</div>
 	<textarea id="output"></textarea>
 	<form id="output-controls">
-		<input type="text" />
+		<span id="option-proxy"></span>
+		<span>
+			<label for="para-before">Before Paragraph</label>
+			<input id="para-before" title="Before Paragraph" value="\n<p>" type="text" />
+			Paragraph text goes here, and maybe some 
+		</span>
+		<span>
+			<label for="bold-before">Before Bold Text</label><input id="bold-before" title="Before Bold Text" value="<strong>" type="text" />
+			<strong>bold text</strong>
+			<label for="bold-after">After Bold Text</label><input id="bold-after" title="After Bold Text" value="<&#47;strong>" type="text" />,
+		</span>
+		<span>
+			<label for="italic-before">Before Italic Text</label><input id="italic-before" title="Before Italic Text" value="<em>" type="text" />
+			<em>italic text</em>
+			<label for="italic-after">After Italic Text</label><input id="italic-after" title="After Italic Text" value="<&#47;em>" type="text" />,
+		</span>
+		<span>
+			or even 
+			<label for="underlined-before">Before Underlined Text</label><input id="underlined-before" title="Before Underlined Text" value="<u>" type="text" />
+			<u>underlined text</u>,
+			<label for="underlined-after">After Underline Text</label><input id="underline-after" title="After Underline Text" value="<&#47;u>" type="text" />,
+		</span>
+		before some more regular text.
+		<span>
+			<label for="para-after">After Paragraph</label>
+			<input id="para-after" title="After Paragraph" value="<&#47;p>\n" type="text" />
+		</span>
+		<hr /><label for="break">Break</label><input id="break" value="\n<hr &#47;>\n" type="text" />
 	</form>
 </fieldset>
