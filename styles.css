@@ -22,17 +22,20 @@ fieldset {
 
 	#output-controls {}
 		#output-controls {/*line-height:1.2em;*/}
-			#output-controls label {display:none;}
-			#output-controls input {outline:none; height:1.2em;}
-			
-			#output-controls input#break {margin:-2.2em auto 0 auto; display:block;}
-			#output-controls hr {margin:1em 0;}
+			#output-controls-markup label {display:none;}
 
-			#output-controls input {border:1px solid black; min-width:20px; margin:0;}
-			#output-controls input, fieldset #option-proxy {
-				font-family:monospace; font-size:100%;
-			}
+			#output-controls-markup input {outline:none; height:1.2em;}
+			
+			#output-controls-markup input#break {margin:-1.2em auto 0 auto; position:relative; top:-1em; display:block;}
+			#output-controls-markup hr {margin:1em 0;}
+
+			#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
+			#output-controls-markup input, fieldset #option-proxy {font-family:monospace; font-size:100%;}
+
+			#output-controls-buttons label {text-transform:lowercase; font-size:small;}
+			#output-controls-buttons label span {display:none;}
+
 		#output-controls #option-proxy {white-space:pre-wrap; position:absolute;}
 
 #input-controls {text-align:right;}
-	#input-controls input[type=button] {margin:0;}
+	fieldset form input[type=button] {margin:0;}

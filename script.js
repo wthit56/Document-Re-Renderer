@@ -70,7 +70,6 @@ window.addEventListener("load", function () {
 				var childNodes = element.childNodes, child;
 				for (var i = 0, l = childNodes.length; i < l; i++) {
 					child = childNodes[i];
-					console.log(child.innerText);
 					if (child.nodeType === 3) {
 						text = child.textContent;
 						if (!isWhitespace.test(text) && !isSpace.test(text)) {
@@ -175,7 +174,6 @@ window.addEventListener("load", function () {
 		var toString = (function () {
 			var findQuotes = /"/g;
 			return function toString(string) {
-				console.log("\"" + string.replace(findQuotes, "\\\"") + "\"");
 				return JSON.parse("\"" + string.replace(findQuotes, "\\\"") + "\"");
 			};
 		})();
@@ -248,13 +246,12 @@ window.addEventListener("load", function () {
 				option.style.width = proxy.offsetWidth + "px";
 				proxy.style.display = "none";
 				if ((h = controls.offsetHeight) !== height) {
-					console.log("controls", height, h);
-					output.resize();
+					resize.outputHeight();
 					height = h;
 				}
 			}
 
-			var options = controls.options = controls.getElementsByTagName("INPUT");
+			var options = controls.options = document.getElementById("output-controls-markup").getElementsByTagName("INPUT");
 			for (var i = 0, l = options.length; i < l; i++) {
 				proxy.innerText = options[i].value;
 				options[i].style.width = proxy.offsetWidth + "px";
@@ -266,22 +263,6 @@ window.addEventListener("load", function () {
 
 			return controls;
 		})();
-
-
-		var gap = controls.offsetTop - output.offsetTop - output.offsetHeight;
-		output.resize = function () {
-			console.log("output resize");
-			document.body.style.overflow = "hidden";
-			this.style.height = (parseInt(this.parentNode.style.height, 10) - controls.offsetHeight - gap - 20) + "px";
-			document.body.style.overflow = "auto";
-			maxWidth = parseFloat(this.parentNode.style.width, 10);
-			console.log(maxWidth);
-
-			for (var i = 0, o, l = controls.options.length; i < l; i++) {
-				o = controls.options[i];
-				o.style.maxWidth = maxWidth - 2 + (o.id === "break" ? -42 : 0) + "px";
-			}
-		};
 
 		return output;
 	})();
@@ -295,15 +276,17 @@ window.addEventListener("load", function () {
 		return width;
 	})();
 
-	window.addEventListener("resize", (function () {
+	var resize = (function () {
 		var padding = 10;
 		var winWidth, width, height, i, o, l;
 		var inputHeight, outputPreviewHeight, outputHeight;
-		function resize() {
+		function resizeWidth() {
 			outputPreview.parentNode.style.width = "10px";
 			width = ((window.innerWidth / 3) - 21) | 0;
 			input.parentNode.style.width = output.parentNode.style.width = width + "px";
-
+			outputPreview.parentNode.style.width = (width + (document.body.scrollHeight > window.innerHeight ? -scrollbarWidth : 0)) + "px";
+		}
+		function resizeHeight() {
 			height = window.innerHeight - input.parentNode.offsetTop - 20;
 			if (height < 300) { height = 300; }
 
@@ -323,13 +306,35 @@ window.addEventListener("load", function () {
 				o.style.maxWidth = optionMaxWidthPX;
 			}
 			output.controls.options[output.controls.options.length - 1].style.maxWidth = (optionMaxWidth - 40) + "px";
-
-			outputPreview.parentNode.style.width = (width + (document.body.scrollHeight > window.innerHeight ? -scrollbarWidth : 0)) + "px";
 		}
-		resize();
+		resizeWidth(); resizeHeight();
 
-		return resize;
-	})());
+		var resizeOutputHeight = (function () {
+			var newHeight;
+			return function resizeOutputHeight() {
+				newHeight = output.controls.offsetHeight;
+				if (newHeight === resizeOutputHeight.oldHeight) { return; }
+				resizeOutputHeight.oldHeight = newHeight;
+
+				outputPreview.parentNode.style.width = "10px";
+				output.style.height = (height - (output.offsetTop - padding) - newHeight) + "px";
+				outputPreview.parentNode.style.width = (width + (document.body.scrollHeight > window.innerHeight ? -scrollbarWidth : 0)) + "px";
+			};
+		})();
+
+		var scheduled;
+		function scheduledHeight() {
+			scheduled = null;
+			resizeHeight();
+		}
+
+		window.addEventListener("resize", function () {
+			resizeWidth();
+			if (!scheduled) { scheduled = setTimeout(scheduledHeight, 10); }
+		});
+
+		return { width: resizeWidth, height: resizeHeight, outputHeight: resizeOutputHeight };
+	})();
 
 });
 /*
