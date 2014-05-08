@@ -1,6 +1,7 @@
 ﻿var input;
 window.addEventListener("load", function () {
 	input = document.getElementById("input");
+	input.controls = document.getElementById("input-controls");
 	input.contentWindow.onscroll = scroll;
 
 	var outputPreview = document.getElementById("output-preview");
@@ -53,7 +54,7 @@ window.addEventListener("load", function () {
 
 	var content = [], breakObject = { is: "break" };
 	document.getElementById("input-analyse").onclick = (function () {
-		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)+(?:<br(?: \/)?>)+)+$/,
+		var isWhitespace = /^\s*$/, isSpace = /^(?:\s*(?:&nbsp;)*(?:<br(?: \/)?>)*)+$/,
 			isBreak = /^\s*(?:[*#~=-]+\s*)+$/;
 		var text, html;
 		function parse(element) {
@@ -149,20 +150,10 @@ window.addEventListener("load", function () {
 					content.last && (lastText = content.last.last) &&
 					((lastText.B === B) && (lastText.U === U) && (lastText.I === I))
 				) {
-					//console.log(
-					//	"Append to previous text; " +
-					//	(B ? "B" : "") + (U ? "U" : "") + (I ? "I" : "") +
-					//	" " + JSON.stringify(text)
-					//);
 					lastText.text += text;
 					lastText = null;
 				}
 				else {
-					//console.log(
-					//	"Add new text; " +
-					//	(B ? "B" : "") + (U ? "U" : "") + (I ? "I" : "") +
-					//	" " + JSON.stringify(text)
-					//);
 					content.last.push(content.last.last = {
 						text: text,
 						B: B, U: U, I: I
@@ -181,12 +172,13 @@ window.addEventListener("load", function () {
 			italicAfter = document.getElementById("italic-after"),
 			breakOption = document.getElementById("break");
 
-		var findQuotes = /"/g;
-		function toString(string) {
-			console.log("\"" + string.replace(findQuotes, "\\\"") + "\"");
-			return JSON.parse("\"" + string.replace(findQuotes, "\\\"") + "\"");
-		}
-		console.log(toString("\\n<p>"));
+		var toString = (function () {
+			var findQuotes = /"/g;
+			return function toString(string) {
+				console.log("\"" + string.replace(findQuotes, "\\\"") + "\"");
+				return JSON.parse("\"" + string.replace(findQuotes, "\\\"") + "\"");
+			};
+		})();
 
 		return function () {
 			content.length = 0;
@@ -244,7 +236,7 @@ window.addEventListener("load", function () {
 		var output = document.getElementById("output");
 		
 		var maxWidth;
-		var controls = (function () {
+		var controls = output.controls = (function () {
 			var controls = document.getElementById("output-controls");
 			var height, h;
 
@@ -294,29 +286,45 @@ window.addEventListener("load", function () {
 		return output;
 	})();
 
+	var scrollbarWidth = (function () {
+		var div = document.createElement("DIV");
+		div.style.cssText = "position:absolute; overflow:scroll;";
+		document.body.appendChild(div);
+		var width = div.offsetWidth - div.clientWidth;
+		document.body.removeChild(div);
+		return width;
+	})();
+
 	window.addEventListener("resize", (function () {
-		var fieldsets = document.getElementsByTagName("FIELDSET");
-
-		fieldsets[0].controls = document.getElementById("input-controls");
-		fieldsets[0].display = document.getElementById("input");
-		var gap = fieldsets[0].controls.offsetTop - (fieldsets[0].display.offsetTop + fieldsets[0].display.offsetHeight);
-
-		fieldsets[1].display = document.getElementById("output-preview");
-
-		var width, height;
+		var padding = 10;
+		var winWidth, width, height, i, o, l;
+		var inputHeight, outputPreviewHeight, outputHeight;
 		function resize() {
-			document.body.style.overflow = "hidden";
-			width = ((window.innerWidth / 3) - 21);
-			fieldsets[0].style.width = fieldsets[1].style.width = output.parentNode.style.width = width + "px";
-			height = (window.innerHeight - fieldsets[0].offsetTop - 20);
-			fieldsets[0].style.height = fieldsets[1].style.height = fieldsets[2].style.height = height + "px";
+			outputPreview.parentNode.style.width = "10px";
+			width = ((window.innerWidth / 3) - 21) | 0;
+			input.parentNode.style.width = output.parentNode.style.width = width + "px";
 
-			fieldsets[0].display.style.height = (height - fieldsets[0].controls.offsetHeight - gap - 20) + "px";
-			fieldsets[1].display.style.height = (height - fieldsets[1].display.offsetTop + 10) + "px";
-			//fieldsets[2].display.style.height = (height - fieldsets[2].controls.offsetHeight - gap - 20) + "px";
-			output.resize();
+			height = window.innerHeight - input.parentNode.offsetTop - 20;
+			if (height < 300) { height = 300; }
 
-			document.body.style.overflow = "auto";
+			input.parentNode.style.height = outputPreview.parentNode.style.height = output.parentNode.style.height = height + "px";
+
+			inputHeight = height - (input.offsetTop - padding) - input.controls.offsetHeight;
+			outputPreviewHeight = height - (outputPreview.offsetTop - padding);
+			outputHeight = height - (output.offsetTop - padding) - output.controls.offsetHeight;
+
+			input.style.height = inputHeight + "px";
+			outputPreview.style.height = outputPreviewHeight + "px";
+			output.style.height = outputHeight + "px";
+
+			var optionMaxWidth = width - 2, optionMaxWidthPX = optionMaxWidth + "px";
+			for (i = 0, o, l = output.controls.options.length - 1; i < l; i++) {
+				o = output.controls.options[i];
+				o.style.maxWidth = optionMaxWidthPX;
+			}
+			output.controls.options[output.controls.options.length - 1].style.maxWidth = (optionMaxWidth - 40) + "px";
+
+			outputPreview.parentNode.style.width = (width + (document.body.scrollHeight > window.innerHeight ? -scrollbarWidth : 0)) + "px";
 		}
 		resize();
 
@@ -324,3 +332,8 @@ window.addEventListener("load", function () {
 	})());
 
 });
+/*
+var input = document.getElementById("input"),
+	outputPreview = document.getElementById("output-preview"),
+	output = document.getElementById("output");
+*/

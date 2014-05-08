@@ -1,7 +1,6 @@
 ﻿<!DOCTYPE html>
 <link href="styles.css" rel="stylesheet" type="text/css" />
 <script src="events-simple-shim.js"></script>
-<script src="script.js" type="text/javascript"></script>
 <h1>Document Re-Render</h1>
 <fieldset>
 	<div class="name">Input</div>
@@ -10,12 +9,12 @@
 		<input value="Clear" type="button" id="input-clear" />
 		<input value="Analyse" type="button" id="input-analyse" />
 	</form>
-</fieldset>
-<fieldset>
+</fieldset><!--
+--><fieldset>
 	<div class="name">Preview</div>
 	<iframe id="output-preview"></iframe>
-</fieldset>
-<fieldset>
+</fieldset><!--
+--><fieldset>
 	<div class="name">Output</div>
 	<textarea id="output"></textarea>
 	<form id="output-controls">
@@ -49,3 +48,4 @@
 		<hr /><label for="break">Break</label><input id="break" value="\n<hr &#47;>\n" type="text" />
 	</form>
 </fieldset>
+<script src="script.js" type="text/javascript"></script>
