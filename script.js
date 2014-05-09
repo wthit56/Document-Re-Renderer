@@ -249,8 +249,7 @@ window.addEventListener("load", function () {
 			var height, h;
 
 			var proxy = document.getElementById("option-proxy"), newWidth;
-			function changeEvent(e) {
-				var option = e.target || e.srcElement;
+			function change(option) {
 				proxy.style.display = "inline-block";
 				proxy.innerText = option.value;
 				option.style.width = proxy.offsetWidth + "px";
@@ -260,12 +259,31 @@ window.addEventListener("load", function () {
 					height = h;
 				}
 			}
+			change.debounce = (function () {
+				var scheduled = null, options = [];
+				function doChange() {
+					var option;
+					while (option = options.pop()) {
+						change(option);
+					}
+					scheduled = null;
+				}
+				return function (option) {
+					if (options.indexOf(option) === -1) { options.push(option); }
+					if (scheduled === null) {
+						scheduled = setTimeout(doChange, 0);
+					}
+				}
+			})();
+			change.event = function changeEvent(e) {
+				change.debounce(e.target || e.srcElement);
+			};
 
 			var options = controls.options = document.getElementById("output-controls-markup").getElementsByTagName("INPUT");
 			for (var i = 0, l = options.length; i < l; i++) {
 				proxy.innerText = options[i].value;
 				options[i].style.width = proxy.offsetWidth + "px";
-				options[i].onchange = options[i].onkeyup = options[i].onkeydown = changeEvent;
+				options[i].onchange = options[i].onkeyup = options[i].onkeydown = change.event;
 			}
 			proxy.style.display = "none";
 
