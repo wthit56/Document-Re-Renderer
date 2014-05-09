@@ -1,9 +1,9 @@
 ﻿body {font-family:sans-serif; margin:0; width:100%;}
 a {color:blue;}
 
-header {}
-	header h1 {font-family:serif; margin:0; font-weight:normal; margin-left:10px; display:inline;}
-	header span {font-style:italic;}
+header {padding:0.2em 0.4em;}
+	header h1 {font-family:serif; margin:0; font-weight:normal; display:inline-block;}
+	header span {font-style:italic; margin-left:0.2em;}
 
 
 fieldset {
@@ -36,10 +36,10 @@ fieldset {
 			}
 			#output-controls-markup hr {margin:1em 0;}
 
-			#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
+			#output-controls-markup input {border:1px solid black; min-width:5px; margin:0;}
 			#output-controls-markup input, fieldset #option-proxy {font-family:monospace; font-size:100%;}
 
-		#output-controls-buttons {}
+		#output-controls-buttons {text-align:right;}
 			#output-controls-buttons label {text-transform:lowercase; font-size:small;}
 			#output-controls-buttons label span {display:none;}
 
