@@ -51,6 +51,7 @@ window.addEventListener("load", function () {
 	input.controls = document.getElementById("input-controls");
 	input.contentWindow.onscroll = scroll.event;
 	scroll.boxes.push(input.contentWindow);
+	input.focus();
 
 	outputPreview = document.getElementById("output-preview");
 	outputPreview.contentWindow.onscroll = scroll.event;
