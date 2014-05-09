@@ -21,19 +21,24 @@ fieldset {
 	fieldset form #input-controls {text-align:right;}
 
 	#output-controls {}
-		#output-controls {/*line-height:1.2em;*/}
-			#output-controls-markup label {display:none;}
+		#output-controls {}
+			#output-controls-markup {}			
+				#output-controls-markup label {display:none;}
 
-			#output-controls-markup input {outline:none; height:1.2em;}
+				#output-controls-markup input {outline:none; height:1.2em;}
 			
-			#output-controls-markup input#break {margin:-1.2em auto 0 auto; position:relative; top:-1em; display:block;}
-			#output-controls-markup hr {margin:1em 0;}
+				#output-controls-markup input#break {margin:-1.2em auto 0 auto; position:relative; top:-1em; display:block;}
+				#output-controls-markup hr {margin:1em 0;}
 
-			#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
-			#output-controls-markup input, fieldset #option-proxy {font-family:monospace; font-size:100%;}
+				#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
+				#output-controls-markup input, fieldset #option-proxy {font-family:monospace; font-size:100%;}
 
-			#output-controls-buttons label {text-transform:lowercase; font-size:small;}
-			#output-controls-buttons label span {display:none;}
+			#output-controls-buttons {}
+				#output-controls-buttons label {text-transform:lowercase; font-size:small;}
+				#output-controls-buttons label span {display:none;}
+
+				#output-controls-buttons input[type=checkbox] {margin:0;}
+
 
 		#output-controls #option-proxy {white-space:pre-wrap; position:absolute;}
 

@@ -1,56 +1,62 @@
-﻿var input;
+﻿var input, outputPreview, output;
 window.addEventListener("load", function () {
-	input = document.getElementById("input");
-	input.controls = document.getElementById("input-controls");
-	input.contentWindow.onscroll = scroll;
+	var scroll = (function () {
+		var amount, boxes, window;
+		function scroll(source) {
+			scroll.allow = false;
+			console.log(source);
 
-	var outputPreview = document.getElementById("output-preview");
-	outputPreview.contentWindow.onscroll = scroll;
-	outputPreview.contentDocument.body.style.margin = "10px";
+			if (source.nodeType === 1) {
+				amount = source.scrollTop / (source.scrollHeight - source.offsetHeight);
+			}
+			else {
+				window = source.defaultView || source.parentWindow;
+				amount = window.scrollY / (source.body.scrollHeight - window.innerHeight);
+				source = window; window = null;
+			}
 
-	var output = document.getElementById("output");
-	output.onscroll = scroll;
+			if (isNaN(amount)) {
+				console.error("invalid amount");
+				return;
+			}
 
-	var toScroll = [
-		input.contentWindow,
-		outputPreview.contentWindow,
-		output
-	];
-	var doScroll = true, amount;
-	function scroll(e) {
-		if (!doScroll) { return; }
-		doScroll = false;
-
-		var target = e.target || e.srcElement, window;
-		if (target.nodeType === 1) {
-			amount = target.scrollTop / (target.scrollHeight - target.offsetHeight);
-		}
-		else {
-			window = target.defaultView || target.parentWindow;
-			amount = window.scrollY / (target.body.scrollHeight - window.innerHeight);
-			target = window;
-		}
-
-		if (isNaN(amount)) {
-			console.error("invalid amount");
-			return;
-		}
-
-		for (var i = 0; i < 3; i++) {
-			if (toScroll[i] !== target) {
-				if (toScroll[i].scrollTo) {
-					toScroll[i].scrollTo(
-						toScroll[i].scrollX,
-						(toScroll[i].document.body.scrollHeight - toScroll[i].innerHeight) * amount
-					);
-				}
-				else {
-					toScroll[i].scrollTop = (toScroll[i].scrollHeight - toScroll[i].clientHeight) * amount
+			for (var i = 0; i < 3; i++) {
+				if (boxes[i] !== source) {
+					if (boxes[i].scrollTo) {
+						boxes[i].scrollTo(
+							boxes[i].scrollX,
+							(boxes[i].document.body.scrollHeight - boxes[i].innerHeight) * amount
+						);
+					}
+					else {
+						boxes[i].scrollTop = (boxes[i].scrollHeight - boxes[i].clientHeight) * amount
+					}
 				}
 			}
+			setTimeout(allowScroll, 1);
 		}
-		setTimeout(function () { doScroll = true; }, 1);
-	}
+		scroll.allow = true;
+		scroll.event = function scrollEvent(e) {
+			if (scroll.allow) { scroll(e.target || e.srcElement); }
+		}
+		boxes = scroll.boxes = [];
+
+		function allowScroll() {
+			scroll.allow = true;
+		}
+
+		return scroll;
+	})();
+
+	input = document.getElementById("input");
+	input.controls = document.getElementById("input-controls");
+	input.contentWindow.onscroll = scroll.event;
+	scroll.boxes.push(input.contentWindow);
+
+	outputPreview = document.getElementById("output-preview");
+	outputPreview.contentWindow.onscroll = scroll.event;
+	outputPreview.contentDocument.body.style.margin = "10px";
+	scroll.boxes.push(outputPreview.contentWindow);
 
 	var content = [], breakObject = { is: "break" };
 	document.getElementById("input-analyse").onclick = (function () {
@@ -221,6 +227,8 @@ window.addEventListener("load", function () {
 						}).join("") + toString(paraAfter.value);
 				}
 			}).join("");
+
+			scroll(outputPreview.contentDocument);
 		};
 	})();
 
@@ -232,7 +240,9 @@ window.addEventListener("load", function () {
 
 	var output = (function () {
 		var output = document.getElementById("output");
-		
+		output.onscroll = scroll.event;
+		scroll.boxes.push(output);
+
 		var maxWidth;
 		var controls = output.controls = (function () {
 			var controls = document.getElementById("output-controls");
@@ -278,15 +288,14 @@ window.addEventListener("load", function () {
 
 	var resize = (function () {
 		var padding = 10;
-		var winWidth, width, height, i, o, l;
+		var width, height, i, o, l;
+
 		var inputHeight, outputPreviewHeight, outputHeight;
-		function resizeWidth() {
+		function resize1() {
 			outputPreview.parentNode.style.width = "10px";
 			width = ((window.innerWidth / 3) - 21) | 0;
 			input.parentNode.style.width = output.parentNode.style.width = width + "px";
-			outputPreview.parentNode.style.width = (width + (document.body.scrollHeight > window.innerHeight ? -scrollbarWidth : 0)) + "px";
-		}
-		function resizeHeight() {
+
 			height = window.innerHeight - input.parentNode.offsetTop - 20;
 			if (height < 300) { height = 300; }
 
@@ -299,15 +308,18 @@ window.addEventListener("load", function () {
 			input.style.height = inputHeight + "px";
 			outputPreview.style.height = outputPreviewHeight + "px";
 			output.style.height = outputHeight + "px";
-
+			outputPreview.parentNode.style.width = (width + (document.body.scrollHeight > window.innerHeight ? -scrollbarWidth : 0)) + "px";
+		}
+		function resize2() {
 			var optionMaxWidth = width - 2, optionMaxWidthPX = optionMaxWidth + "px";
-			for (i = 0, o, l = output.controls.options.length - 1; i < l; i++) {
+			for (i = 0, l = output.controls.options.length - 1; i < l; i++) {
 				o = output.controls.options[i];
 				o.style.maxWidth = optionMaxWidthPX;
 			}
+			o = null;
 			output.controls.options[output.controls.options.length - 1].style.maxWidth = (optionMaxWidth - 40) + "px";
 		}
-		resizeWidth(); resizeHeight();
+		resize1(); resize2();
 
 		var resizeOutputHeight = (function () {
 			var newHeight;
@@ -323,17 +335,17 @@ window.addEventListener("load", function () {
 		})();
 
 		var scheduled;
-		function scheduledHeight() {
+		function scheduled2() {
 			scheduled = null;
-			resizeHeight();
+			resize2();
 		}
 
 		window.addEventListener("resize", function () {
-			resizeWidth();
-			if (!scheduled) { scheduled = setTimeout(scheduledHeight, 10); }
+			resize1();
+			if (!scheduled) { scheduled = setTimeout(scheduled2, 10); }
 		});
 
-		return { width: resizeWidth, height: resizeHeight, outputHeight: resizeOutputHeight };
+		return { outputHeight: resizeOutputHeight };
 	})();
 
 });
