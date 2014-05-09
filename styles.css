@@ -1,8 +1,10 @@
 ﻿body {font-family:sans-serif; margin:0; width:100%;}
-body.nowrap {white-space:nowrap;}
-body.nowrap * {white-space:normal;}
+a {color:blue;}
 
-h1 {font-family:serif; margin:0; font-weight:normal; margin-left:10px;}
+header {}
+	header h1 {font-family:serif; margin:0; font-weight:normal; margin-left:10px; display:inline;}
+	header span {font-style:italic;}
+
 
 fieldset {
 	border:none; border-left:1px solid #CCC; float:left;
@@ -21,29 +23,27 @@ fieldset {
 	fieldset form #input-controls {text-align:right;}
 
 	#output-controls {}
-		#output-controls {}
-			#output-controls-markup {}			
-				#output-controls-markup label {display:none;}
-
-				#output-controls-markup input {outline:none; height:1.2em;}
-			
-				#output-controls-markup input#break {
-					display:block; margin:-1.2em auto 0 auto;
-					position:relative; top:-1em;
-				}
-				#output-controls-markup hr {margin:1em 0;}
-
-				#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
-				#output-controls-markup input, fieldset #option-proxy {font-family:monospace; font-size:100%;}
-
-			#output-controls-buttons {}
-				#output-controls-buttons label {text-transform:lowercase; font-size:small;}
-				#output-controls-buttons label span {display:none;}
-
-				#output-controls-buttons input[type=checkbox] {margin:0;}
-
-
 		#output-controls #option-proxy {white-space:pre-wrap; position:absolute;}
+
+		#output-controls-markup {}			
+			#output-controls-markup label {display:none;}
+
+			#output-controls-markup input {outline:none; height:1.2em;}
+			
+			#output-controls-markup input#break {
+				display:block; margin:-1.2em auto 0 auto;
+				position:relative; top:-1em;
+			}
+			#output-controls-markup hr {margin:1em 0;}
+
+			#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
+			#output-controls-markup input, fieldset #option-proxy {font-family:monospace; font-size:100%;}
+
+		#output-controls-buttons {}
+			#output-controls-buttons label {text-transform:lowercase; font-size:small;}
+			#output-controls-buttons label span {display:none;}
+
+			#output-controls-buttons input[type=checkbox] {margin:0;}
 
 #input-controls {text-align:right;}
 	fieldset form input[type=button] {margin:0;}
