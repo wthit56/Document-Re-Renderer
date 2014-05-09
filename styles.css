@@ -27,7 +27,10 @@ fieldset {
 
 				#output-controls-markup input {outline:none; height:1.2em;}
 			
-				#output-controls-markup input#break {margin:-1.2em auto 0 auto; position:relative; top:-1em; display:block;}
+				#output-controls-markup input#break {
+					display:block; margin:-1.2em auto 0 auto;
+					position:relative; top:-1em;
+				}
 				#output-controls-markup hr {margin:1em 0;}
 
 				#output-controls-markup input {border:1px solid black; min-width:20px; margin:0;}
