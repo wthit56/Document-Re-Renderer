@@ -216,7 +216,9 @@ window.addEventListener("load", function () {
 			if (isWhitespace.test(html)) { return; }
 			else {
 				var style = window.getComputedStyle(element);
-				if (style.display === "block") {
+
+				if ((style.display === "none") || (style.visibility === "hidden") || (style.opacity === "0")) { return; }
+				else if (style.display === "block") {
 					if (isSpace.test(html)) { pendingBreak(); }
 					else { pendingPara(); }
 				}
@@ -235,14 +237,16 @@ window.addEventListener("load", function () {
 							}
 						}
 					}
-					else if (child.tagName === "BR") {
-						pendingPara();
-					}
-					else if (child.tagName === "HR") {
-						pendingBreak();
-					}
-					else {
-						parse(child);
+					else if (child.nodeType === 1) {
+						if (child.tagName === "BR") {
+							pendingPara();
+						}
+						else if (child.tagName === "HR") {
+							pendingBreak();
+						}
+						else {
+							parse(child);
+						}
 					}
 				}
 
@@ -269,7 +273,7 @@ window.addEventListener("load", function () {
 			var hasUnderline = /(?:^|\s)underline(?:\s|$)/i,
 				findLeadingWhitespace = /^(?:\s+|&nbsp;)+/,
 				findTrailingWhitespace = /(?:\s+|&nbsp;)+$/,
-				findSpace = /(?:\s+|&nbsp;)+/;
+				findSpace = /(?:\s+|(?:&nbsp;)+)+/;
 			return function addText(text, style) {
 				if (
 					(pendingBreak.is || pendingPara.is) &&
@@ -430,7 +434,7 @@ window.addEventListener("load", function () {
 		}
 	});
 
-	document.getElementById("output-render").addEventListener("click", output.controls.onsubmit= function (e) {
+	document.getElementById("output-render").addEventListener("click", output.controls.onsubmit = function (e) {
 		e.preventDefault();
 		render(); scroll(output);
 		return false;
