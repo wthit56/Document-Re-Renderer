@@ -273,7 +273,7 @@ window.addEventListener("load", function () {
 			var hasUnderline = /(?:^|\s)underline(?:\s|$)/i,
 				findLeadingWhitespace = /^(?:\s+|&nbsp;)+/,
 				findTrailingWhitespace = /(?:\s+|&nbsp;)+$/,
-				findSpace = /(?:\s+|&nbsp;)+/;
+				findSpace = /(?:\s+|(?:&nbsp;)+)+/;
 			return function addText(text, style) {
 				if (
 					(pendingBreak.is || pendingPara.is) &&
